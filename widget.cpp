@@ -2,6 +2,8 @@
 #include "ui_widget.h"
 #include "style.h"
 #include <QGraphicsDropShadowEffect>
+#include <QFileDialog>
+#include <QDir>
 
 
 Widget::Widget(QWidget *parent) :
@@ -40,10 +42,44 @@ Widget::Widget(QWidget *parent) :
     ui->pause->setCursor(Qt::PointingHandCursor);
     ui->tableView->setStyleSheet(Style::getTableViewStyleSheet());
 
+    // Настройка таблицы плейлиста
+    m_playListModel = new QStandardItemModel(this);
+    ui->tableView->setModel(m_playListModel);    // Устанавливаем модель данных в TableView
+    // Устанавливаем заголовки таблицы
+    m_playListModel->setHorizontalHeaderLabels(QStringList()  << tr("Audio Track")
+                                                                << tr("File Path"));
+    ui->tableView->hideColumn(1);    // Скрываем колонку, в которой хранится путь к файлу
+    ui->tableView->verticalHeader()->setVisible(false);                  // Скрываем нумерацию строк
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);  // Включаем выделение строк
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection); // Разрешаем выделять только одну строку
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);   // Отключаем редактирование
+    // Включаем подгонку размера последней видимой колонки к ширине TableView
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+
+
 
 }
 
 Widget::~Widget()
 {
     delete ui;
+    delete m_playListModel;
+}
+void Widget::on_add_clicked()
+{
+    // С помощью диалога выбора файлов делаем множественный выбор mp3 файлов
+    QStringList files = QFileDialog::getOpenFileNames(this,
+                                                      tr("Open files"),
+                                                      QString(),
+                                                      tr("Audio Files (*.mp3)"));
+
+    // Далее устанавливаем данные по именам и пути к файлам
+    // в плейлист и таблицу отображающую плейлист
+    foreach (QString filePath, files) {
+        QList<QStandardItem *> items;
+        items.append(new QStandardItem(QDir(filePath).dirName()));
+        items.append(new QStandardItem(filePath));
+        m_playListModel->appendRow(items);
+        //m_playlist->addMedia(QUrl(filePath));
+    }
 }
