@@ -5,7 +5,7 @@
 #include <QStandardItemModel>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
-
+#include <QMouseEvent>
 
 namespace Ui {
 class Widget;
@@ -25,6 +25,8 @@ private slots:
 private:
     Ui::Widget *ui;
     QStandardItemModel  *m_playListModel;   // Модель данных плейлиста для отображения
+    QMediaPlayer        *m_player;          // Проигрыватель треков
+    QMediaPlaylist      *m_playlist;        // Плейлиста проигрывателя
 
 };
 
